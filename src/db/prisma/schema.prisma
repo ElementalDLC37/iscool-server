@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id             Int         @id @default(autoincrement())
+  name           String
+  federativeUnit String
+  city           String
+  stages         Stage[]
+  classrooms     Classroom[]
+  teachers       Teacher[]
+  students       Student[]
+  subjects       Subject[]
+
+  @@map("schools")
+}
+
+model Year {
+  id         Int         @id @default(autoincrement())
+  number     Int
+  trimesters Trimester[]
+
+  Avaliation Avaliation[]
+  @@map("years")
+}
+
+model Trimester {
+  id     Int  @id @default(autoincrement())
+  number Int
+  Year   Year @relation(fields: [yearId], references: [id])
+  yearId Int
+
+  Avaliation Avaliation[]
+  @@map("trimesters")
+}
+
+model Stage {
+  id         Int          @id @default(autoincrement())
+  name       String
+  schools    School[]
+  subjects   Subject[]
+  teachers   Teacher[]
+  classrooms Classroom[]
+  students   Student[]
+  Avaliation Avaliation[]
+
+  @@map("stages")
+}
+
+model Subject {
+  id         Int         @id @default(autoincrement())
+  name       String
+  schools    School[]
+  teachers   Teacher[]
+  stages     Stage[]
+  classrooms Classroom[]
+  students   Student[]
+
+  Avaliation Avaliation[]
+  @@map("subjects")
+}
+
+model Teacher {
+  id         Int         @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  schools    School[]
+  stages     Stage[]
+  subjects   Subject[]
+  classrooms Classroom[]
+  students   Student[]
+
+  Avaliation Avaliation[]
+  @@map("teachers")
+}
+
+model Classroom {
+  id         Int       @id @default(autoincrement())
+  schoolYear Int
+  school     School    @relation(fields: [schoolId], references: [id])
+  schoolId   Int
+  stage      Stage     @relation(fields: [stageId], references: [id])
+  stageId    Int
+  subjects   Subject[]
+  teachers   Teacher[]
+  students   Student[]
+
+  Avaliation Avaliation[]
+  @@map("classrooms")
+}
+
+model Student {
+  id          Int          @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  school      School       @relation(fields: [schoolId], references: [id])
+  schoolId    Int
+  Stage       Stage        @relation(fields: [stageId], references: [id])
+  stageId     Int
+  subjects    Subject[]
+  classroom   Classroom    @relation(fields: [classroomId], references: [id])
+  classroomId Int
+  teachers    Teacher[]
+  avaliation  Avaliation[]
+
+  @@map("students")
+}
+
+model Avaliation {
+  id            Int       @id @default(autoincrement())
+  name          String
+  year          Year      @relation(fields: [yearId], references: [id])
+  yearId        Int
+  trimester     Trimester @relation(fields: [trimesterId], references: [id])
+  trimesterId   Int
+  stage         Stage     @relation(fields: [stageId], references: [id])
+  stageId       Int
+  subject       Subject   @relation(fields: [subjectId], references: [id])
+  subjectId     Int
+  classroom     Classroom @relation(fields: [classroomId], references: [id])
+  classroomId   Int
+  teacher       Teacher   @relation(fields: [teacherId], references: [id])
+  teacherId     Int
+  student       Student   @relation(fields: [studentId], references: [id])
+  studentId     Int
+  result_is_set Boolean
+  result        Float     @default(0)
+
+  @@map("avaliations")
+}
